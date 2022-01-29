@@ -1,0 +1,74 @@
+use Test;
+use SelectiveImporting;
+
+use lib './t';
+
+{
+    use testimporting <&asdf1 &asdf2 &testimporting::asdf3 &testimporting::asdf4 &asdf5>;
+    is &asdf1.package.^name, "testimporting";
+    is &asdf2.package.^name, "testimporting";
+    is testimporting::<&testimporting::asdf3>.package.^name, "testimporting";
+    is ::<&testimporting::asdf4>.package.^name, "testimporting";
+    is &asdf5.package.^name, "testimporting";
+    is asdf1(), "our asdf1";
+    is asdf2(), "exported asdf2";
+    is testimporting::<&testimporting::asdf3>(), "our testimporting::asdf3";
+    is ::<&testimporting::asdf4>(), "exported testimporting::asdf4";
+    is asdf5(), "our exported asdf5";
+}
+{
+    use testimporting <&asdf1 &asdf2 &asdf5>;
+    use testimporting '&testimporting::asdf3' => '&asdf3', '&testimporting::asdf4' => '&asdf4';
+    use testimporting '&testimporting::asdf3' => '&asdf6', '&testimporting::asdf4' => '&asdf8';
+    is &asdf1.package.^name, "testimporting";
+    is &asdf2.package.^name, "testimporting";
+    is &asdf3.package.^name, "testimporting";
+    is &asdf4.package.^name, "testimporting";
+    is &asdf5.package.^name, "testimporting";
+    is asdf1(), "our asdf1";
+    is asdf2(), "exported asdf2";
+    is asdf3(), "our testimporting::asdf3";
+    is asdf4(), "exported testimporting::asdf4";
+    is asdf5(), "our exported asdf5";
+
+    is &asdf6.package.^name, "testimporting";
+    is &asdf8.package.^name, "testimporting";
+    is asdf6(), "our testimporting::asdf3";
+    is asdf8(), "exported testimporting::asdf4";
+}
+{
+    use testimporting <$v1 $v2 @arr>;
+    is $v1, testimporting::<$v1>;
+    is $v2, testimporting::<$v2>;
+    $v1 = 43;
+    $v2 = 1025;
+    @arr = [2, 3, 4];
+    is testimporting::<$v1>, 43;
+    is testimporting::<$v2>, 1025;
+    is testimporting::EXPORT::ALL::<$v2>, 1025;
+    is $v2.WHERE, testimporting::<$v2>.WHERE;
+    is @arr.WHERE, testimporting::<@arr>.WHERE;
+    use testimporting <$v1> => '$v1m', <@arr> => '@arrm';
+    is $v1m.VAR.name, '$v1';
+    is $v1m, 43;
+    is @arrm, @arr;
+}
+{
+    use testimporting <class1 class2 class3 class4 class5>;
+    is class1.new.gist, "testimporting::class1.new";
+    is class2.new.gist, "testimporting::testimporting::class2.new";
+    is class3.new.gist, "testimporting::class3.new";
+    is class4.new.gist, "testimporting::testimporting::class4.new";
+    is class5.new.gist, "testimporting::class5.new";
+}
+{
+    use testimporting;
+    is testimporting::<$v2>.WHERE, testimporting::EXPORT::ALL::<$v2>.WHERE;
+    is $v2, testimporting::<$v2>;
+    is $v2.WHERE, testimporting::<$v2>.WHERE;
+    is @arr.WHERE, testimporting::<@arr>.WHERE;
+    is ::<&testimporting::asdf4>(), "exported testimporting::asdf4";
+    is asdf5(), "our exported asdf5";
+}
+
+done-testing;

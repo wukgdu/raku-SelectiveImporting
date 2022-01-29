@@ -1,0 +1,25 @@
+{
+  "auth": "zef:wukgdu",
+  "authors": [
+    "wukgdu"
+  ],
+  "build-depends": [
+  ],
+  "depends": [
+  ],
+  "description": "Yet another selective importing in Raku",
+  "license": "Artistic-2.0",
+  "name": "SelectiveImporting",
+  "perl": "6.d",
+  "provides": {
+    "SelectiveImporting": "lib/SelectiveImporting.rakumod"
+  },
+  "resources": [
+  ],
+  "source-url": "https://github.com/wukgdu/raku-SelectiveImporting",
+  "tags": [
+  ],
+  "test-depends": [
+  ],
+  "version": "0.0.1"
+}
