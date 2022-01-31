@@ -7,12 +7,12 @@ use lib './t';
     use testimporting <&asdf1 &asdf2 &testimporting::asdf3 &testimporting::asdf4 &asdf5>;
     is &asdf1.package.^name, "testimporting";
     is &asdf2.package.^name, "testimporting";
-    is testimporting::<&testimporting::asdf3>.package.^name, "testimporting";
+    is ::<&testimporting::asdf3>.package.^name, "testimporting";
     is ::<&testimporting::asdf4>.package.^name, "testimporting";
     is &asdf5.package.^name, "testimporting";
     is asdf1(), "our asdf1";
     is asdf2(), "exported asdf2";
-    is testimporting::<&testimporting::asdf3>(), "our testimporting::asdf3";
+    is ::<&testimporting::asdf3>(), "our testimporting::asdf3";
     is ::<&testimporting::asdf4>(), "exported testimporting::asdf4";
     is asdf5(), "our exported asdf5";
 }
