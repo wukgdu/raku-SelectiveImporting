@@ -8,15 +8,23 @@ sub stash_hash_helper(Mu \s, $e1, $arr) {
     return $res;
 }
 
-sub trans_hash(\allitems, $trans = Any) {
+sub trans_hash(\allitems, $trans = Any, $keep-others=True) {
     my $res := nqp::hash();
     if ($trans === Any) || (%$trans.elems == 0) {
         for allitems.keys { # to nqp::hash
             $res{$_} := allitems{$_};
         }
     } else {
-        for %$trans { # to nqp::hash, and rename some keys
-            $res{$_} := allitems{%$trans{$_}};
+        if $keep-others {
+            for allitems { # to nqp::hash, and rename keys in $trans
+                my $newk := %$trans{$_};
+                my $k := $newk === Any ?? $_ !! $newk;
+                $res{$k} := allitems{$_};
+            }
+        } else {
+            for %$trans { # to nqp::hash, and keep & rename keys in $trans
+                $res{%$trans{$_}} := allitems{$_};
+            }
         }
     }
     $res;
@@ -32,7 +40,7 @@ sub EXPORT(|) {
                 # my $List := self.find_single_symbol('List', :setting-only);
                 my $Pair := self.find_single_symbol('Pair', :setting-only);
 
-                my %trans; # to => from
+                my %trans; # from => to
                 my $toinstalled := nqp::hash();
 
                 my $OURITEMS := stash_hash_helper(self, $handle.globalish-package, $package_source_name.split("::"));
@@ -40,21 +48,21 @@ sub EXPORT(|) {
                 for $arglist -> $t {
                     # if (nqp::istype($tag, $Array) or nqp::istype($tag, $List)) {
                     if nqp::istype($t, $Pair) {
-                        %trans{$t.value} = $t.key;
+                        %trans{$t.key} = $t.value;
                     } else {
                         %trans{$t} = $t;
                     }
                 }
                 for %trans.keys -> $k {
-                    my $v = %trans{$k};
-                    my $tmp1 := $EXPORTITEMS{$v};
-                    my $tmp2 := $OURITEMS{$v};
+                    my $v := %trans{$k};
+                    my $tmp1 := $EXPORTITEMS{$k};
+                    my $tmp2 := $OURITEMS{$k};
                     if not $tmp1 === Any {
-                        $toinstalled{$k} := $tmp1;
+                        $toinstalled{$v} := $tmp1;
                     } elsif not $tmp2 === Any {
-                        $toinstalled{$k} := $tmp2;
+                        $toinstalled{$v} := $tmp2;
                     } else {
-                        nqp::die("no export or our $v in $package_source_name");
+                        nqp::die("no export or our $k in $package_source_name");
                     }
                 }
                 # say %trans;
