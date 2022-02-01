@@ -4,7 +4,7 @@ use SelectiveImporting;
 use lib './t';
 
 {
-    use testimporting <&asdf1 &asdf2 &testimporting::asdf3 &testimporting::asdf4 &asdf5>;
+    use testimporting :select(|<&asdf2 &testimporting::asdf4 &asdf5>, :our(<&asdf1 &testimporting::asdf3>));
     is &asdf1.package.^name, "testimporting";
     is &asdf2.package.^name, "testimporting";
     is ::<&testimporting::asdf3>.package.^name, "testimporting";
@@ -17,9 +17,10 @@ use lib './t';
     is asdf5(), "our exported asdf5";
 }
 {
-    use testimporting <&asdf1 &asdf2 &asdf5>;
-    use testimporting '&testimporting::asdf3' => '&asdf3', '&testimporting::asdf4' => '&asdf4';
-    use testimporting '&testimporting::asdf3' => '&asdf6', '&testimporting::asdf4' => '&asdf8';
+    use testimporting :select(<&asdf5>, :our<&asdf1>);
+    use testimporting :select<&asdf2>;
+    use testimporting :select(:our('&testimporting::asdf3' => '&asdf3'), '&testimporting::asdf4' => '&asdf4');
+    use testimporting :select(:our('&testimporting::asdf3' => '&asdf6'), '&testimporting::asdf4' => '&asdf8');
     is &asdf1.package.^name, "testimporting";
     is &asdf2.package.^name, "testimporting";
     is &asdf3.package.^name, "testimporting";
@@ -37,7 +38,7 @@ use lib './t';
     is asdf8(), "exported testimporting::asdf4";
 }
 {
-    use testimporting <$v1 $v2 @arr>;
+    use testimporting :select(|<$v2 @arr>, :our<$v1>);
     is $v1, testimporting::<$v1>;
     is $v2, testimporting::<$v2>;
     $v1 = 43;
@@ -48,13 +49,14 @@ use lib './t';
     is testimporting::EXPORT::ALL::<$v2>, 1025;
     is $v2.WHERE, testimporting::<$v2>.WHERE;
     is @arr.WHERE, testimporting::<@arr>.WHERE;
-    use testimporting <$v1> => '$v1m', <@arr> => '@arrm';
+
+    use testimporting :select(:our(<$v1> => '$v1m'), <@arr> => '@arrm');
     is $v1m.VAR.name, '$v1';
     is $v1m, 43;
     is @arrm, @arr;
 }
 {
-    use testimporting <class1 class2 class3 class4 class5>;
+    use testimporting :select(|<class1 class4>, :our<class2 class3 class5>);
     is class1.new.gist, "testimporting::class1.new";
     is class2.new.gist, "testimporting::testimporting::class2.new";
     is class3.new.gist, "testimporting::class3.new";

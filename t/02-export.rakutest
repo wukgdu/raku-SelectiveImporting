@@ -1,0 +1,36 @@
+use Test;
+use SelectiveImporting;
+
+use lib './t';
+
+{
+    use exportmodule :select<$var &asdf>;
+
+    is $var, 'one';          # OUTPUT: «one␤» 
+    # say @array;        # OUTPUT: «(one two three)␤» 
+    # say %hash;         # OUTPUT: «{one => two, three => four}␤» 
+    # doit();            # OUTPUT: «Greetings from exported sub␤» 
+    # say ShortName.new; # OUTPUT: «MyModule::Class.new␤» 
+
+    # is asdf3, 'exported asdf3';
+    is asdf, 'one';
+
+    is asdf1, 'our exported asdf1'; # by our
+    is asdf2, 'our asdf2';
+}
+{
+    use exportmodule;
+    is asdf3, 'exported asdf3';
+    is asdf, 'one';
+    is ShortName.new.gist, "MyModule::Class.new";
+}
+{
+    use exportmodule :DEFAULT, :select();
+    use exportmodule :DEFAULT, :select(<&asdf3> => <&asdf233>);
+    is asdf3, 'exported asdf3';
+    is asdf233, 'exported asdf3';
+    is asdf, 'one';
+    is ShortName.new.gist, "MyModule::Class.new";
+}
+
+done-testing;
