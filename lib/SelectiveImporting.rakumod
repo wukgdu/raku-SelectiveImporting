@@ -10,7 +10,7 @@ sub stash_hash_helper(Mu \s, $e1, $arr) {
 
 sub trans_hash(\allitems, $trans = Any, :$keep-others=False, :$package_source_name = Any, :$info="our") {
     my $res := nqp::hash();
-    if ($trans === Any) || (%$trans.elems == 0) {
+    if ($trans === Any) || ($trans.elems == 0) {
         for allitems.keys { # to nqp::hash
             $res{$_} := allitems{$_};
         }
@@ -43,7 +43,6 @@ sub EXPORT($keySelect = "select", $export-sub-key = "exportSub", $our-key = "our
             my %trans; # from => to for aliases
             my %trans-for-our; # from => to for aliases
             # my %trans-for-EXPORT; # from => to for aliases
-            my $otherKeysCount = 0;
             my $existSelect = False;
             my $export-sub-all = False;
 
@@ -56,9 +55,7 @@ sub EXPORT($keySelect = "select", $export-sub-key = "exportSub", $our-key = "our
 
                 for $arglist -> $tag {
                     if nqp::istype($tag, $Pair) {
-                        $otherKeysCount++;
                         if ($tag.key eq $keySelect) and (not nqp::istype($tag.value, $Bool)) {
-                            $otherKeysCount--;
                             $existSelect = True;
                             for @($tag.value) -> $t {
                                 if nqp::istype($t, $Pair) {
@@ -90,7 +87,7 @@ sub EXPORT($keySelect = "select", $export-sub-key = "exportSub", $our-key = "our
                     self.import($/, $toinstalled, $package_source_name);
                 }
 
-                if $existSelect and ($otherKeysCount == 0) and (%trans.elems != 0) {
+                if %trans.elems != 0 {
                     my $EXPORTITEMS := self.stash_hash($EXPORT{"ALL"});
                     # say "export: ", $EXPORTITEMS.keys;
                     my $toinstalled := trans_hash($EXPORTITEMS, %trans, :$package_source_name, :info("export"));

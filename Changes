@@ -1,6 +1,10 @@
 Revision history for SelectiveImporting
 
 {{$NEXT}}
+    - break changes (need :select(...) in use statement)
+    - support sub EXPORT
+    - support importing tags
+    - update README
 
 0.0.2  2022-01-30T01:23:48+08:00
     - Update README
