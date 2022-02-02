@@ -9,10 +9,12 @@ sub stash_hash_helper(Mu \s, $e1, $arr) {
 }
 
 sub trans_hash(\allitems, $trans = Any, :$keep-others=False, :$package_source_name = Any, :$info="our") {
+    my $elems = 0;
     my $res := nqp::hash();
     if ($trans === Any) || ($trans.elems == 0) {
         for allitems.keys { # to nqp::hash
             $res{$_} := allitems{$_};
+            $elems++;
         }
     } else {
         if $keep-others {
@@ -20,6 +22,7 @@ sub trans_hash(\allitems, $trans = Any, :$keep-others=False, :$package_source_na
                 my $newk := $trans{$k};
                 my $key := $newk === Any ?? $k !! $newk;
                 $res{$key} := allitems{$k};
+                $elems++;
             }
         } else {
             for $trans.keys -> $k { # to nqp::hash, and keep & rename keys in $trans
@@ -27,11 +30,12 @@ sub trans_hash(\allitems, $trans = Any, :$keep-others=False, :$package_source_na
                     # nqp::die("$info $_ dosen't exist in $package_source_name");
                 } else {
                     $res{$trans{$k}} := allitems{$k};
+                    $elems++;
                 }
             }
         }
     }
-    $res;
+    $elems == 0 ?? Any !! $res;
 }
 
 sub EXPORT($keySelect = "select", $export-sub-key = "exportSub", $our-key = "our") {
@@ -84,14 +88,14 @@ sub EXPORT($keySelect = "select", $export-sub-key = "exportSub", $our-key = "our
                     my $OURITEMS := stash_hash_helper(self, $handle.globalish-package, $package_source_name.split("::"));
                     # say "our: ", $OURITEMS.keys;
                     my $toinstalled := trans_hash($OURITEMS, %trans-for-our, :$package_source_name, :info("our"));
-                    self.import($/, $toinstalled, $package_source_name);
+                    self.import($/, $toinstalled, $package_source_name) if $toinstalled;
                 }
 
                 if %trans.elems != 0 {
                     my $EXPORTITEMS := self.stash_hash($EXPORT{"ALL"});
                     # say "export: ", $EXPORTITEMS.keys;
                     my $toinstalled := trans_hash($EXPORTITEMS, %trans, :$package_source_name, :info("export"));
-                    self.import($/, $toinstalled, $package_source_name);
+                    self.import($/, $toinstalled, $package_source_name) if $toinstalled;
                 }
             }
             if nqp::defined($EXPORT) {
@@ -107,7 +111,7 @@ sub EXPORT($keySelect = "select", $export-sub-key = "exportSub", $our-key = "our
                             my $tag1 := nqp::unbox_s($tag.key);
                             if nqp::existskey($EXPORT, $tag1) {
                                 my $tmphash := trans_hash(self.stash_hash($EXPORT{$tag1}), %trans, :keep-others);
-                                self.import($/, $tmphash, $package_source_name);
+                                self.import($/, $tmphash, $package_source_name) if $tmphash;
                             }
                             else {
                                 self.throw($/, ['X', 'Import', 'NoSuchTag'],
@@ -127,7 +131,7 @@ sub EXPORT($keySelect = "select", $export-sub-key = "exportSub", $our-key = "our
                 for @to_import -> $tag {
                     if nqp::existskey($EXPORT, $tag) {
                         my $tmphash := trans_hash(self.stash_hash($EXPORT{$tag}), %trans, :keep-others);
-                        self.import($/, $tmphash, $package_source_name);
+                        self.import($/, $tmphash, $package_source_name) if $tmphash;
                     }
                 }
                 my &EXPORT = $handle.export-sub;
@@ -135,8 +139,10 @@ sub EXPORT($keySelect = "select", $export-sub-key = "exportSub", $our-key = "our
                     my $result := &EXPORT(|@positional_imports);
                     my $Map := self.find_single_symbol('Map', :setting-only);
                     if nqp::istype($result, $Map) {
-                        my $tmphash := trans_hash($result.hash.FLATTENABLE_HASH(), %trans, :keep-others($export-sub-all));
-                        self.import($/, $tmphash, $package_source_name, :need-decont(!(nqp::what($result) =:= $Map)));
+                        if not ($existSelect and (%trans.elems == 0) and (not $export-sub-all)) {
+                            my $tmphash := trans_hash($result.hash.FLATTENABLE_HASH(), %trans, :keep-others($export-sub-all));
+                            self.import($/, $tmphash, $package_source_name, :need-decont(!(nqp::what($result) =:= $Map))) if $tmphash;
+                        }
 #                    $/.check_LANG_oopsies("do_import");
                     }
                     else {

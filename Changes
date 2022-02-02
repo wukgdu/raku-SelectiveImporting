@@ -1,6 +1,9 @@
 Revision history for SelectiveImporting
 
 {{$NEXT}}
+    - skip World.import if no items to be installed
+    - fix an issue so as to disable sub EXPORT by default
+    - update README
 
 0.0.3  2022-02-01T15:34:28+08:00
     - break changes (need :select(...) in use statement)

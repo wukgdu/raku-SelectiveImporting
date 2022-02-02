@@ -25,7 +25,7 @@ use lib './t';
     is ShortName.new.gist, "MyModule::Class.new";
 }
 {
-    use exportmodule :DEFAULT, :select();
+    use exportmodule :DEFAULT, :select(:exportSub);
     use exportmodule :DEFAULT, :select(<&asdf3> => <&asdf233>);
     is asdf3, 'exported asdf3';
     is asdf233, 'exported asdf3';
