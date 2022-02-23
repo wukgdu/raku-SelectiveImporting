@@ -2,6 +2,10 @@ Revision history for SelectiveImporting
 
 {{$NEXT}}
 
+0.0.5  2022-02-23T16:20:04+08:00
+    - add test for postfix...
+    - update README
+
 0.0.4  2022-02-02T21:26:30+08:00
     - skip World.import if no items to be installed
     - fix an issue so as to disable sub EXPORT by default

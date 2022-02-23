@@ -6,6 +6,10 @@ our $v2 is export = 1024;
 our @arr is export = [1, 2, 3];
 our $arr2 is export = [1, 2, 3];
 
+sub postfix:<!>($a) is export {
+    return [*] 1..$a;
+}
+
 our sub asdf1() {
     return "our asdf1";
 }

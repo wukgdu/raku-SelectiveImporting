@@ -49,6 +49,13 @@ Behavior after `use SelectiveImporting`:
       * if tags or `:exportSub` exist, it will import all items from them, and rename items using `Str`|`Pair` except `:our(...)`; if there is not any alias, import without renaming
       * if items don't exist in given `:tag`, it will import from `:ALL`
 
+How to import via `:select`:
+  * `class` X: 'X'
+  * `routine` f: '&f'
+  * `variable` \$a: '$a' (@a, %a)
+  * `sub postfix:<`!`>`: '&postfix:<!>'
+  * others: not tested so far
+
 Examples:
   * examples/*.raku
   * t/*.rakumod *.rakutest
@@ -59,6 +66,11 @@ Ref:
   * https://docs.raku.org/language/modules#Exporting_and_selective_importing
   * https://github.com/rakudo/rakudo/blob/master/src/Perl6/World.nqp
   * https://github.com/FROGGS/p6-if
+
+Note:
+  * It modifies the default `do_import` in `Perl6/World.nqp`
+  * It doesn't work in REPL
+  * It doesn't deal with `EXPORTHOW`
 
 AUTHOR
 ======

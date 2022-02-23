@@ -72,5 +72,12 @@ use lib './t';
     is ::<&testimporting::asdf4>(), "exported testimporting::asdf4";
     is asdf5(), "our exported asdf5";
 }
+{
+    use testimporting :select('&postfix:<!>');
+    # use testimporting :select<&postfix:<!>>; # ok
+    use testimporting :select('&postfix:<!>' => '&postfix:<$>');
+    is 3!, 6;
+    is 3$, 6;
+}
 
 done-testing;
