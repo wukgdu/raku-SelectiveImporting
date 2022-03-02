@@ -4,6 +4,13 @@ use SelectiveImporting;
 use lib './t';
 
 {
+    # a simple example
+    use testimporting :select<&asdf2 &asdf5>;
+    is asdf2(), "exported asdf2";
+    is asdf5(), "our exported asdf5";
+}
+{
+    # complex one
     use testimporting :select(|<&asdf2 &testimporting::asdf4 &asdf5>, :our(<&asdf1 &testimporting::asdf3>));
     is &asdf1.package.^name, "testimporting";
     is &asdf2.package.^name, "testimporting";
@@ -78,6 +85,25 @@ use lib './t';
     use testimporting :select('&postfix:<!>' => '&postfix:<$>');
     is 3!, 6;
     is 3$, 6;
+}
+{
+    # test enum and constant
+    use testimporting :select<FOO FooBar>;
+    is FOO, "foobar";
+    is FooBar::one.value, FooBar.enums<one>;
+
+    use testimporting :select<one two>;
+    # it just works; `one` is export, too
+    # say testimporting.WHO.keys;
+    # say testimporting.WHO<EXPORT>.WHO<ALL>.WHO.keys;
+    is one, FooBar::one;
+    is two, FooBar::two;
+}
+{
+    # test package
+    use testimporting :select<apackage &bsub>;
+    is apackage::asub(42), 43;
+    is bsub(42), 44;
 }
 
 done-testing;

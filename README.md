@@ -10,11 +10,8 @@ Installation: `zef install SelectiveImporting`
 
 ```raku
 use SelectiveImporting;
-use if; # for fun and testing
 
-use JSON::Fast:if(True) :select<&to-json &from-json>;
-# or just `use JSON::Fast :select<&to-json &from-json>;` without :if
-# or just `use JSON::Fast;`
+use JSON::Fast :select<&to-json &from-json>; # or just `use JSON::Fast`
 use JSON::Tiny :select('&to-json' => '&to-json-tiny', '&from-json' => '&from-json-tiny');
 
 # say &to-json.package;      # (Fast)
@@ -54,7 +51,10 @@ How to import via `:select`:
   * `routine` f: '&f'
   * `variable` \$a: '$a' (@a, %a)
   * `sub postfix:<`!`>`: '&postfix:<!>'
-  * others: not tested so far
+  * `enum` X \<a b c d\>: 'X'
+    * could import 'a', 'b' to use them directly instead of `X::a` via `:select<X a b>`
+  * `constant` X: 'X'
+  * `package` X: 'X'
 
 Examples:
   * examples/*.raku

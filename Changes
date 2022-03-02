@@ -2,6 +2,10 @@ Revision history for SelectiveImporting
 
 {{$NEXT}}
 
+0.1.0  2022-03-02T23:56:26+08:00
+    - add more test
+    - update README
+
 0.0.5  2022-02-23T16:20:04+08:00
     - add test for postfix...
     - update README

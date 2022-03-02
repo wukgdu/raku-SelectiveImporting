@@ -6,6 +6,9 @@ our $v2 is export = 1024;
 our @arr is export = [1, 2, 3];
 our $arr2 is export = [1, 2, 3];
 
+constant FOO is export = "foobar";
+enum FooBar is export <one two three>;
+
 sub postfix:<!>($a) is export {
     return [*] 1..$a;
 }
@@ -47,4 +50,13 @@ class testimporting::class4 is export {
 
 class class5 {
 
+}
+
+package apackage is export {
+    our sub asub(Int $a) {
+        $a + 1;
+    }
+    sub bsub(Int $a) is export {
+        $a + 2;
+    }
 }
