@@ -105,5 +105,11 @@ use lib './t';
     is apackage::asub(42), 43;
     is bsub(42), 44;
 }
+{
+    package haha {
+        use testimporting :select(:our<&asdf1>);
+        is asdf1(), "our asdf1";
+    }
+}
 
 done-testing;

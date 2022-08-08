@@ -8,7 +8,7 @@ sub stash_hash_helper(Mu \s, $e1, $arr) {
     return $res;
 }
 
-sub trans_hash(\allitems, $trans = Any, :$keep-others=False, :$package_source_name = Any, :$info="our") {
+sub trans_hash(\allitems, $trans = Any, :$keep-others=False, :$package_source_name = "the package") {
     my $elems = 0;
     my $res := nqp::hash();
     if ($trans === Any) || ($trans.elems == 0) {
@@ -27,7 +27,7 @@ sub trans_hash(\allitems, $trans = Any, :$keep-others=False, :$package_source_na
         } else {
             for $trans.keys -> $k { # to nqp::hash, and keep & rename keys in $trans
                 if not allitems{$k}:exists {
-                    # nqp::die("$info $_ dosen't exist in $package_source_name");
+                    # warn "[SelectiveImporting] warn: $k dosen't exist in $package_source_name";
                 } else {
                     $res{$trans{$k}} := allitems{$k};
                     $elems++;
@@ -87,14 +87,14 @@ sub EXPORT($keySelect = "select", $export-sub-key = "exportSub", $our-key = "our
                 if %trans-for-our.elems != 0 {
                     my $OURITEMS := stash_hash_helper(self, $handle.globalish-package, $package_source_name.split("::"));
                     # say "our: ", $OURITEMS.keys;
-                    my $toinstalled := trans_hash($OURITEMS, %trans-for-our, :$package_source_name, :info("our"));
+                    my $toinstalled := trans_hash($OURITEMS, %trans-for-our, :$package_source_name);
                     self.import($/, $toinstalled, $package_source_name) if $toinstalled;
                 }
 
                 if %trans.elems != 0 {
                     my $EXPORTITEMS := self.stash_hash($EXPORT{"ALL"});
                     # say "export: ", $EXPORTITEMS.keys;
-                    my $toinstalled := trans_hash($EXPORTITEMS, %trans, :$package_source_name, :info("export"));
+                    my $toinstalled := trans_hash($EXPORTITEMS, %trans, :$package_source_name);
                     self.import($/, $toinstalled, $package_source_name) if $toinstalled;
                 }
             }
@@ -110,7 +110,7 @@ sub EXPORT($keySelect = "select", $export-sub-key = "exportSub", $our-key = "our
                             }
                             my $tag1 := nqp::unbox_s($tag.key);
                             if nqp::existskey($EXPORT, $tag1) {
-                                my $tmphash := trans_hash(self.stash_hash($EXPORT{$tag1}), %trans, :keep-others);
+                                my $tmphash := trans_hash(self.stash_hash($EXPORT{$tag1}), %trans, :keep-others, :$package_source_name);
                                 self.import($/, $tmphash, $package_source_name) if $tmphash;
                             }
                             else {
@@ -130,7 +130,7 @@ sub EXPORT($keySelect = "select", $export-sub-key = "exportSub", $our-key = "our
                 }
                 for @to_import -> $tag {
                     if nqp::existskey($EXPORT, $tag) {
-                        my $tmphash := trans_hash(self.stash_hash($EXPORT{$tag}), %trans, :keep-others);
+                        my $tmphash := trans_hash(self.stash_hash($EXPORT{$tag}), %trans, :keep-others, :$package_source_name);
                         self.import($/, $tmphash, $package_source_name) if $tmphash;
                     }
                 }
@@ -140,7 +140,7 @@ sub EXPORT($keySelect = "select", $export-sub-key = "exportSub", $our-key = "our
                     my $Map := self.find_single_symbol('Map', :setting-only);
                     if nqp::istype($result, $Map) {
                         if not ($existSelect and (%trans.elems == 0) and (not $export-sub-all)) {
-                            my $tmphash := trans_hash($result.hash.FLATTENABLE_HASH(), %trans, :keep-others($export-sub-all));
+                            my $tmphash := trans_hash($result.hash.FLATTENABLE_HASH(), %trans, :keep-others($export-sub-all), :$package_source_name);
                             self.import($/, $tmphash, $package_source_name, :need-decont(!(nqp::what($result) =:= $Map))) if $tmphash;
                         }
 #                    $/.check_LANG_oopsies("do_import");

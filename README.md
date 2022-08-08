@@ -14,10 +14,10 @@ use SelectiveImporting;
 use JSON::Fast :select<&to-json &from-json>; # or just `use JSON::Fast`
 use JSON::Tiny :select('&to-json' => '&to-json-tiny', '&from-json' => '&from-json-tiny');
 
-# say &to-json.package;      # (Fast)
-# say &from-json.package;    # (Fast)
-# say &to-json-tiny.package; # (Tiny)
-# say &to-json-tiny.package; # (Tiny)
+# say &to-json.package;        # (Fast)
+# say &from-json.package;      # (Fast)
+# say &to-json-tiny.package;   # (Tiny)
+# say &from-json-tiny.package; # (Tiny)
 ```
 
 DESCRIPTION
@@ -55,6 +55,18 @@ How to import via `:select`:
     * could import 'a', 'b' to use them directly instead of `X::a` via `:select<X a b>`
   * `constant` X: 'X'
   * `package` X: 'X'
+
+Use cases:
+  * use XXX :select\<a b \$c \&d\>
+  * use XXX :select('a', 'b')
+  * use XXX :select('a' => 'aa', 'b' => 'bb')
+  * use XXX :select('a' => 'aa', 'b' => 'bb', 'c', 'd')
+  * use XXX :select(|\<c d\>, 'a' => 'aa', 'b' => 'bb', 'e')
+  * use XXX :select(|\<c d\>, 'a' => 'aa', 'b' => 'bb', :exportSub)
+  * use XXX :select(|\<c d\>, 'a' => 'aa', 'b' => 'bb', :exportSub, :our\<oa ob\>)
+  * use XXX :select(|\<c d\>, 'a' => 'aa', 'b' => 'bb', :exportSub, :our('oa' => 'oaa', 'ob' => 'obb', 'oc'))
+  * use XXX :DEFAULT, :select\<a b\>
+  * use XXX :tag1, :tag2, :select\<a b\>
 
 Examples:
   * examples/*.raku
