@@ -38,7 +38,12 @@ sub trans_hash(\allitems, $trans = Any, :$keep-others=False, :$package_source_na
     $elems == 0 ?? Any !! $res;
 }
 
-sub EXPORT($keySelect = "select", $export-sub-key = "exportSub", $our-key = "our") {
+# sub EXPORT($select-key = "select", $export-sub-key = "exportSub", $our-key = "our") {
+sub EXPORT(%h?) {
+    my $select-key = %h<select> || "select";
+    my $export-sub-key = %h<EXPORT> || "exportSub";
+    my $our-key = %h<our> || "our";
+    # dd %h;
     role AnotherBetterWorld {
         method do_import(Mu $/ is raw, $handle, $package_source_name, Mu $arglist? is raw) {
             # dd $arglist;
@@ -47,7 +52,7 @@ sub EXPORT($keySelect = "select", $export-sub-key = "exportSub", $our-key = "our
             my %trans; # from => to for aliases
             my %trans-for-our; # from => to for aliases
             # my %trans-for-EXPORT; # from => to for aliases
-            my $existSelect = False;
+            my $exist-select-key = False;
             my $export-sub-all = False;
 
             my $Pair := self.find_single_symbol('Pair', :setting-only);
@@ -59,8 +64,8 @@ sub EXPORT($keySelect = "select", $export-sub-key = "exportSub", $our-key = "our
 
                 for $arglist -> $tag {
                     if nqp::istype($tag, $Pair) {
-                        if ($tag.key eq $keySelect) and (not nqp::istype($tag.value, $Bool)) {
-                            $existSelect = True;
+                        if ($tag.key eq $select-key) and (not nqp::istype($tag.value, $Bool)) {
+                            $exist-select-key = True;
                             for @($tag.value) -> $t {
                                 if nqp::istype($t, $Pair) {
                                     if $t.key eq $export-sub-key {
@@ -100,12 +105,12 @@ sub EXPORT($keySelect = "select", $export-sub-key = "exportSub", $our-key = "our
             }
             if nqp::defined($EXPORT) {
                 $EXPORT := $EXPORT.FLATTENABLE_HASH();
-                my @to_import := $existSelect ?? [] !! ['MANDATORY'];
+                my @to_import := $exist-select-key ?? [] !! ['MANDATORY'];
                 my @positional_imports := [];
                 if nqp::defined($arglist) {
                     for $arglist -> $tag {
                         if nqp::istype($tag, $Pair) {
-                            if ($tag.key eq $keySelect) and (not nqp::istype($tag.value, $Bool)) {
+                            if ($tag.key eq $select-key) and (not nqp::istype($tag.value, $Bool)) {
                                 next;
                             }
                             my $tag1 := nqp::unbox_s($tag.key);
@@ -139,7 +144,7 @@ sub EXPORT($keySelect = "select", $export-sub-key = "exportSub", $our-key = "our
                     my $result := &EXPORT(|@positional_imports);
                     my $Map := self.find_single_symbol('Map', :setting-only);
                     if nqp::istype($result, $Map) {
-                        if not ($existSelect and (%trans.elems == 0) and (not $export-sub-all)) {
+                        if not ($exist-select-key and (%trans.elems == 0) and (not $export-sub-all)) {
                             my $tmphash := trans_hash($result.hash.FLATTENABLE_HASH(), %trans, :keep-others($export-sub-all), :$package_source_name);
                             self.import($/, $tmphash, $package_source_name, :need-decont(!(nqp::what($result) =:= $Map))) if $tmphash;
                         }

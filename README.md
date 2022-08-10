@@ -68,6 +68,11 @@ Use cases:
   * use XXX :DEFAULT, :select\<a b\>
   * use XXX :tag1, :tag2, :select\<a b\>
 
+How to use other words instead of `select`:
+  * `use SelectiveImporting ({:select("get")},)`;
+  * then `use XXX :get(...)`
+  * please check examples/change-key.raku for more details
+
 Examples:
   * examples/*.raku
   * t/*.rakumod *.rakutest
