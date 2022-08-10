@@ -2,6 +2,10 @@ Revision history for SelectiveImporting
 
 {{$NEXT}}
 
+0.1.2  2022-08-11T03:42:02+08:00
+    - allow using other words instead of :select
+    - update README and examples
+
 0.1.1  2022-08-09T04:13:57+08:00
     - update README
     - add tests
