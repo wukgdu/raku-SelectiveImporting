@@ -68,26 +68,34 @@ Use cases:
   * use XXX :DEFAULT, :select\<a b\>
   * use XXX :tag1, :tag2, :select\<a b\>
 
+Skip something when import via `:except`:
+  * use XXX :except('a', '&c')
+  * `use XXX :select('a', 'b'), :except('b')` will not import 'b'
+  * could be used when import `:tag`
+
 How to use other words instead of `select`:
   * `use SelectiveImporting ({:select("get")},)`;
   * then `use XXX :get(...)`
+  * also `({:except("skip")},)`
   * please check examples/change-key.raku for more details
 
 Examples:
   * examples/*.raku
   * t/*.rakumod *.rakutest
 
-Similar module: https://raku.land/zef:wukgdu/CustomImporting (which imports items and makes aliases through function)
+Note:
+  * It modifies the default `do_import` in `Perl6/World.nqp`
+  * It doesn't work in REPL
+  * It doesn't deal with `EXPORTHOW`
 
 Ref:
   * https://docs.raku.org/language/modules#Exporting_and_selective_importing
   * https://github.com/rakudo/rakudo/blob/master/src/Perl6/World.nqp
   * https://github.com/FROGGS/p6-if
 
-Note:
-  * It modifies the default `do_import` in `Perl6/World.nqp`
-  * It doesn't work in REPL
-  * It doesn't deal with `EXPORTHOW`
+Similar module
+  * https://raku.land/zef:wukgdu/CustomImporting (which imports items and makes aliases through function)
+  * https://raku.land/zef:lizmat/from (which inspires `:except`)
 
 AUTHOR
 ======

@@ -9,3 +9,8 @@ use SelectiveImporting ({:select("get"), :EXPORT("exportSub"), :our("our"), :exc
     dd &from-json;
     dd &to-json;
 }
+{
+    use JSON::Fast :get<&from-json &to-json>, :except("&to-json");
+    dd &from-json;
+    dd &to-json;
+}
