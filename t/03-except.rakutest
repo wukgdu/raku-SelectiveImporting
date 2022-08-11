@@ -1,0 +1,16 @@
+use Test;
+use SelectiveImporting;
+
+use lib './t';
+
+sub asdf2() {
+    42;
+}
+
+{
+    use testimporting :except<&asdf2>;
+    is asdf2(), 42;
+    is asdf5(), "our exported asdf5";
+}
+
+done-testing;
