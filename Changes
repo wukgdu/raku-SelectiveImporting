@@ -2,6 +2,10 @@ Revision history for SelectiveImporting
 
 {{$NEXT}}
 
+0.1.3  2022-08-11T23:34:18+08:00
+    - allow skipping something by :except (inspired by from)
+    - update README
+
 0.1.2  2022-08-11T03:42:02+08:00
     - allow using other words instead of :select
     - update README and examples
